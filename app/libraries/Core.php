@@ -53,10 +53,10 @@ class Core
         // exit();
 
         call_user_func_array([$this->currentController, $this->currentMethod], $this->params);
-        print_r($this->params);
+        // print_r($this->params);
         // print_r($url);
         // exit();
-        echo $this->currentMethod;
+        // echo $this->currentMethod;
     }
 
     public function getURL()

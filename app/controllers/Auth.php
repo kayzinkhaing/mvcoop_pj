@@ -61,6 +61,9 @@ class Auth extends Controller
                 $user->setDate(date('Y-m-d H:i:s'));
 
                 $userCreated = $this->db->create('users', $user->toArray());
+                // echo "Generated Token: $token<br>";
+                // exit();
+
 
                 if ($userCreated) {
                     $mail = new Mail();
@@ -85,7 +88,7 @@ class Auth extends Controller
     // Corrected verify method with optional token parameter and check
     public function verify($token = null)
     {
-        // echo 'Verify Page';
+        echo "Incoming token: $token<br>";
         if (!$token) {
             setMessage('error', 'Verification token missing!');
             redirect('');
@@ -93,6 +96,8 @@ class Auth extends Controller
         }
 
         $user = $this->db->columnFilter('users', 'token', $token);
+        // var_dump($user);
+        // exit();
 
         if ($user) {
             $success = $this->db->setLogin($user[0]['id']);

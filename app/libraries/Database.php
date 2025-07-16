@@ -164,17 +164,15 @@ class Database
         return ($success) ? $row : [];
     }
 
-    public function setLogin($id)
-    {
-        $sql = 'UPDATE users SET `is_login` = :value WHERE `id` = :id';
-        $stm = $this->pdo->prepare($sql);
-        $stm->bindValue(':value', 1);
-        $stm->bindValue(':id', $id);
-        $success = $stm->execute();
-        $stm->closeCursor();    // to solve PHP Unbuffered Queries
-        $row = $stm->fetch(PDO::FETCH_ASSOC);
-        return ($success) ? $row : [];
-    }
+        public function setLogin($id)
+        {
+            $sql = 'UPDATE users SET is_login = 1, is_confirmed = 1, is_active = 1 WHERE id = :id';
+            $stm = $this->pdo->prepare($sql);
+            $stm->bindValue(':id', $id, PDO::PARAM_INT);
+            $success = $stm->execute();
+            $stm->closeCursor(); // good practice for unbuffered queries
+            return $success;
+        }
 
     public function unsetLogin($id)
     {
