@@ -33,10 +33,13 @@ class Pages extends Controller
     {
         $income = $this->db->incomeTransition();
         $expense = $this->db->expenseTransition();
+
         $data = [
-            'income' => $income,
-            'expense' => $expense
+            'income' => isset($income['amount']) ? $income : ['amount' => 0],
+            'expense' => isset($expense['amount']) ? $expense : ['amount' => 0]
         ];
+
         $this->view('pages/dashboard', $data);
     }
+
 }

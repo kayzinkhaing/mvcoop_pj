@@ -12,6 +12,7 @@ class UserModel
     private $is_login;
     private $token;
     private $date;
+    
 
     public function setName($name)
     {

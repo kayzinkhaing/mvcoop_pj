@@ -27,64 +27,71 @@ class Auth extends Controller
     }
 
     public function register()
-    {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Check user exist
-            $email = $_POST['email'];
-            // call columnFilter Method from Database.php
-            $isUserExist = $this->db->columnFilter('users', 'email', $email);
-            if ($isUserExist) {
-                setMessage('error', 'This email is already registered !');
-                redirect('pages/register');
+{
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $email = $_POST['email'];
+        $isUserExist = $this->db->columnFilter('users', 'email', $email);
+
+        if ($isUserExist) {
+            setMessage('error', 'This email is already registered!');
+            redirect('pages/register');
+        } else {
+            $validation = new UserValidator($_POST);
+            $data = $validation->validateForm();
+
+            if (count($data) > 0) {
+                $this->view('pages/register', $data);
             } else {
-                // Validate entries
-                $validation = new UserValidator($_POST);
-                $data = $validation->validateForm();
-                if (count($data) > 0) {
-                    $this->view('pages/register', $data);
+                $name = $_POST['name'];
+                $password = $_POST['password'];
+
+                $profile_image = 'default_profile.jpg';
+                $token = bin2hex(random_bytes(50));
+                $password = base64_encode($password); // Note: base64 is NOT secure for real passwords
+
+                $user = new UserModel();
+                $user->setName($name);
+                $user->setEmail($email);
+                $user->setPassword($password);
+                $user->setToken($token);
+                $user->setProfileImage($profile_image);
+                $user->setIsLogin(0);
+                $user->setIsActive(0);
+                $user->setIsConfirmed(0);
+                $user->setDate(date('Y-m-d H:i:s'));
+
+                $userCreated = $this->db->create('users', $user->toArray());
+
+                if ($userCreated) {
+                    $mail = new Mail();
+                    $verify_token = URLROOT . '/auth/verify/' . $token;
+                    $mail->verifyMail($email, $name, $verify_token);
+
+                    setMessage('success', 'Please check your Mail box!');
+                    redirect('pages/login');
                 } else {
-                    $name = $_POST['name'];
-                    $email = $_POST['email'];
-                    $password = $_POST['password'];
-
-                    $profile_image = 'default_profile.jpg';
-                    $token = bin2hex(random_bytes(50));
-
-                    //Hash Password before saving
-                    $password = base64_encode($password);
-
-                    $user = new UserModel();
-                    $user->setName($name);
-                    $user->setEmail($email);
-                    $user->setPassword($password);
-                    $user->setToken($token);
-                    $user->setProfileImage($profile_image);
-                    $user->setIsLogin(0);
-                    $user->setIsActive(0);
-                    $user->setIsConfirmed(0);
-                    $user->setDate(date('Y-m-d H:i:s'));
-
-                    $userCreated = $this->db->create('users', $user->toArray());
-                    //$userCreated="true";
-
-                    if ($userCreated) {
-                        //Instatiate mail
-                        $mail = new Mail();
-
-                        $verify_token = URLROOT . '/auth/verify/' . $token;
-                        $mail->verifyMail($email, $name, $verify_token);
-
-                        setMessage('success', 'Please check your Mail box !');
-                        redirect('pages/login');
-                    }
+                    setMessage('error', 'Something went wrong while creating your account.');
                     redirect('pages/register');
-                } // end of validation check
-            } // end of user-exist
+                }
+            }
         }
+    } else {
+        // SHOW THE REGISTRATION FORM FOR GET REQUEST
+        $this->view('pages/register');
     }
+}
 
-    public function verify($token)
+
+    // Corrected verify method with optional token parameter and check
+    public function verify($token = null)
     {
+        // echo 'Verify Page';
+        if (!$token) {
+            setMessage('error', 'Verification token missing!');
+            redirect('');
+            return;
+        }
+
         $user = $this->db->columnFilter('users', 'token', $token);
 
         if ($user) {
@@ -93,13 +100,13 @@ class Auth extends Controller
             if ($success) {
                 setMessage(
                     'success',
-                    'Successfully Verified . Please log in !'
+                    'Successfully Verified. Please log in!'
                 );
             } else {
-                setMessage('error', 'Fail to Verify . Please try again!');
+                setMessage('error', 'Fail to Verify. Please try again!');
             }
         } else {
-            setMessage('error', 'Incrorrect Token . Please try again!');
+            setMessage('error', 'Incorrect Token. Please try again!');
         }
 
         redirect('');
@@ -107,7 +114,6 @@ class Auth extends Controller
 
     public function login()
     {
-       
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['email']) && isset($_POST['password'])) {
                 $email = $_POST['email'];
@@ -124,17 +130,12 @@ class Auth extends Controller
                     setMessage('error', 'Login Fail!');
                     redirect('pages/login');
                 }
-
             }
         }
     }
 
     function logout($id)
     {
-        // session_start();
-        // $this->db->unsetLogin(base64_decode($_SESSION['id']));
-
-        //$this->db->unsetLogin($this->auth->getAuthId());
         $this->db->unsetLogin($id);
         redirect('pages/login');
     }

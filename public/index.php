@@ -1,4 +1,5 @@
 <?php
+ session_start(); 
 
 // The require_once() will first check whether a file is already included or not
 // and if it is already included then it will not include it again.

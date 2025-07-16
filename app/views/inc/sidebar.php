@@ -1,7 +1,7 @@
 <!-- Sidebar -->
 <nav id="sidebar">
 	<div class="p-4 pt-5">
-		<a href="<?php echo URLROOT; ?>/images/logo12.jpg" class="img logo rounded-circle mb-5" style="background-image: url(<?php echo URLROOT; ?>/images/logo12.jpg);"></a>
+		<a href="<?php echo URLROOT; ?>/images/logo.jpg" class="img logo rounded-circle mb-5" style="background-image: url(<?php echo URLROOT; ?>/images/logo.jpg);"></a>
 	    <ul class="list-unstyled components mb-5">
 			<li>
                 <a href="<?php echo URLROOT; ?>/pages/dashboard">Dashboard</a>

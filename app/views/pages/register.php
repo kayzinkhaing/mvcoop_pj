@@ -286,4 +286,5 @@
 	$("#c_password").keyup(function() {
 		$("#error").remove();
 	});
+	});
 </script>

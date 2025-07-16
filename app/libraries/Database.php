@@ -33,27 +33,71 @@ class Database
         }
     }
 
+    // public function create($table, $data)
+    // {
+    //     // print_r($data);  
+    //     // exit;
+    //     try {
+    //         $column = array_keys($data);
+    //         $columnSql = implode(', ', $column);
+    //         $bindingSql = ':' . implode(',:', $column);
+    //         //echo $bindingSql;
+    //         $sql = "INSERT INTO $table ($columnSql) VALUES ($bindingSql)";
+    //         // echo $sql;
+    //         // exit;
+    //         $stm = $this->pdo->prepare($sql);  
+    //         // print_r($stm);
+    //         // exit;
+    //         foreach ($data as $key => $value) {
+    //             // echo $key . ' => ' . $value . '<br>';
+    //             // echo ':' . $key . ' => ' . $value . '<br>';
+
+    //             $stm->bindValue(':' . $key, $value);
+    //         }
+    //         // print_r($stm);
+    //         $status = $stm->execute();
+    //         // echo $status;
+    //         return ($status) ? $this->pdo->lastInsertId() : false;
+    //     } catch (PDOException $e) {
+    //         echo $e;
+    //     }
+    // }
+
     public function create($table, $data)
-    {
-        try {
-            $column = array_keys($data);
-            $columnSql = implode(', ', $column);
-            $bindingSql = ':' . implode(',:', $column);
-            //echo $bindingSql;
-            $sql = "INSERT INTO $table ($columnSql) VALUES ($bindingSql)";
-            // echo $sql;
-            $stm = $this->pdo->prepare($sql);  
-            foreach ($data as $key => $value) {
-                $stm->bindValue(':' . $key, $value);
-            }
-            // print_r($stm);
-            $status = $stm->execute();
-            // echo $status;
-            return ($status) ? $this->pdo->lastInsertId() : false;
-        } catch (PDOException $e) {
-            echo $e;
+{
+    try {
+        $column = array_keys($data);
+        $columnSql = implode(', ', $column);
+        $bindingSql = ':' . implode(',:', $column);
+
+        $sql = "INSERT INTO $table ($columnSql) VALUES ($bindingSql)";
+        $stm = $this->pdo->prepare($sql);
+
+        foreach ($data as $key => $value) {
+            echo "Binding :$key => $value<br>";
+            // exit();
+            $stm->bindValue(':' . $key, $value);
         }
+
+        $status = $stm->execute();
+
+        if (!$status) {
+            $errorInfo = $stm->errorInfo();
+            echo "SQLSTATE error code: " . $errorInfo[0] . "<br>";
+            echo "Driver-specific error code: " . $errorInfo[1] . "<br>";
+            echo "Driver-specific error message: " . $errorInfo[2] . "<br>";
+            return false;
+        }
+
+        echo "Insert successful. Last Insert ID: " . $this->pdo->lastInsertId() . "<br>";
+        return $this->pdo->lastInsertId();
+
+    } catch (PDOException $e) {
+        echo "PDOException: " . $e->getMessage();
+        return false;
     }
+}
+
     // Update Query
     public function update($table, $id, $data)
     {   
@@ -182,44 +226,71 @@ class Database
     }
 
     // For Dashboard
+    // public function incomeTransition()
+    // {
+    //    try{
+
+    //        $sql        = "SELECT *,SUM(amount) AS amount FROM incomes WHERE
+    //        (date = { fn CURDATE() }) ";
+    //        $stm = $this->pdo->prepare($sql);
+    //        $success = $stm->execute();
+
+    //        $row     = $stm->fetch(PDO::FETCH_ASSOC);
+    //        return ($success) ? $row : [];
+
+    //     }
+    //     catch( Exception $e)
+    //     {
+    //         echo($e);
+    //     }
+     
+    // }
+
     public function incomeTransition()
     {
-       try{
-
-           $sql        = "SELECT *,SUM(amount) AS amount FROM incomes WHERE
-           (date = { fn CURDATE() }) ";
-           $stm = $this->pdo->prepare($sql);
-           $success = $stm->execute();
-
-           $row     = $stm->fetch(PDO::FETCH_ASSOC);
-           return ($success) ? $row : [];
-
-        }
-        catch( Exception $e)
-        {
+        try {
+            $sql = "SELECT SUM(amount) AS total_amount FROM incomes WHERE date = CURDATE()";
+            $stm = $this->pdo->prepare($sql);
+            $success = $stm->execute();
+            $row = $stm->fetch(PDO::FETCH_ASSOC);
+            return ($success) ? $row : [];
+        } catch (Exception $e) {
             echo($e);
         }
-     
     }
 
+
+    // public function expenseTransition()
+    // {
+    //    try{
+
+    //        $sql        = "SELECT * ,SUM(amount*qty) AS amount FROM expenses WHERE
+    //        (date = { fn CURDATE() }) ";
+    //        $stm = $this->pdo->prepare($sql);
+    //        $success = $stm->execute();
+
+    //        $row     = $stm->fetch(PDO::FETCH_ASSOC);
+    //        return ($success) ? $row : [];
+
+    //     }
+    //     catch( Exception $e)
+    //     {
+    //         echo($e);
+    //     }
+     
+    // }
     public function expenseTransition()
     {
-       try{
-
-           $sql        = "SELECT * ,SUM(amount*qty) AS amount FROM expenses WHERE
-           (date = { fn CURDATE() }) ";
-           $stm = $this->pdo->prepare($sql);
-           $success = $stm->execute();
-
-           $row     = $stm->fetch(PDO::FETCH_ASSOC);
-           return ($success) ? $row : [];
-
-        }
-        catch( Exception $e)
-        {
+        try {
+            $sql = "SELECT SUM(amount * qty) AS total_expense FROM expenses WHERE date = CURDATE()";
+            $stm = $this->pdo->prepare($sql);
+            $success = $stm->execute();
+            $row = $stm->fetch(PDO::FETCH_ASSOC);
+            return ($success) ? $row : [];
+        } catch (Exception $e) {
             echo($e);
         }
-     
     }
+
 }
 

@@ -22,13 +22,13 @@ class Mail
             $mail->isSMTP(); // Send using SMTP
             $mail->Host       = 'smtp.gmail.com';// Set the SMTP server to send through
             $mail->SMTPAuth   = true;// Enable SMTP authentication
-            $mail->Username   = '****';// SMTP username
-            $mail->Password   = '**********';// SMTP password
+            $mail->Username   = 'kayzinkhaing1331@gmail.com';// SMTP username
+            $mail->Password   = 'zlse ddmr eoeo hapj';// SMTP password
             $mail->SMTPSecure = 'tls';// Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
             $mail->Port       = 587;// TCP port to connect to, use 465 for `PHPMailer::ENCRYPTION_SMTPS` above
 
             //Recipients
-            $mail->setFrom('test.ivhub@gmail.com', 'Cash Flow');  
+            $mail->setFrom('kayzinkhaing1331@gmail.com', 'Cash Flow');  
             $mail->addAddress($recipient_mail,$recipient_name);     // Add a recipient
 
             // Content
